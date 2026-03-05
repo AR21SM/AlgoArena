@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: codearena_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: codearena
+      POSTGRES_PASSWORD: codearena_secret
+      POSTGRES_DB: codearena
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U codearena"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: codearena_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  judge0:
+    image: judge0/judge0:1.13.0
+    container_name: codearena_judge0
+    restart: unless-stopped
+    ports:
+      - "2358:2358"
+    privileged: true
+    environment:
+      REDIS_URL: redis://redis:6379
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: codearena
+      POSTGRES_PASSWORD: codearena_secret
+      POSTGRES_DB: judge0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  judge0-workers:
+    image: judge0/judge0:1.13.0
+    container_name: codearena_judge0_workers
+    restart: unless-stopped
+    command: ["./scripts/workers"]
+    privileged: true
+    environment:
+      REDIS_URL: redis://redis:6379
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: codearena
+      POSTGRES_PASSWORD: codearena_secret
+      POSTGRES_DB: judge0
+    depends_on:
+      - judge0
+
+volumes:
+  postgres_data:
+  redis_data:

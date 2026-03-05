@@ -1,0 +1,31 @@
+{
+    "name": "@codearena/server",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "bun run --watch src/index.ts",
+        "start": "bun run src/index.ts",
+        "typecheck": "tsc --noEmit",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "bun run src/db/migrate.ts",
+        "db:seed": "bun run src/db/seed.ts"
+    },
+    "dependencies": {
+        "@codearena/shared": "workspace:*",
+        "@elysiajs/cors": "^1.1.1",
+        "@elysiajs/jwt": "^1.1.1",
+        "@elysiajs/swagger": "^1.1.6",
+        "bullmq": "^5.7.0",
+        "drizzle-orm": "^0.30.10",
+        "elysia": "^1.1.25",
+        "ioredis": "^5.3.2",
+        "postgres": "^3.4.4",
+        "bcryptjs": "^2.4.3"
+    },
+    "devDependencies": {
+        "@types/bcryptjs": "^2.4.6",
+        "@types/node": "^22.0.0",
+        "drizzle-kit": "^0.21.4",
+        "typescript": "^5.4.0"
+    }
+}

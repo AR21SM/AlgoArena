@@ -1,0 +1,30 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    image: codearena-server:prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+    env_file:
+      - apps/server/.env
+    ports:
+      - "3001:3001"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    image: codearena-web:prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    env_file:
+      - apps/web/.env.local
+    depends_on:
+      - server
+    ports:
+      - "3000:3000"
